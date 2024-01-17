@@ -13,19 +13,21 @@ class ArgsTest {
     @Test
     @DisplayName("it should be able to return a truthy boolean value from args")
     void shouldBeAbleToReturnABooleanValueFromArgs() throws ParseException {
-        var args = new Args("l", new String[] {"-l"});
+        var args = new Args("l", new String[]{"-l"});
         assertTrue(args.getBoolean('l'));
     }
+
     @Test
     @DisplayName("it should be able to return a valid string from args")
     void shouldBeAbleToReturnAStringValueFromArgs() throws ParseException {
-        var args = new Args("d*", new String[] {"-d", "\\home\\output\\"});
+        var args = new Args("d*", new String[]{"-d", "\\home\\output\\"});
         assertEquals("\\home\\output\\", args.getString('d'));
     }
+
     @Test
     @DisplayName("it should not be able to return a truthy boolean from args")
     void shouldNotBeAbleToReturnATruthyBooleanValueFromArgs() throws ParseException {
-        var args = new Args("l", new String[] {"l"});
+        var args = new Args("l", new String[]{"l"});
         assertFalse(args.getBoolean('l'));
         assertFalse(args.getBoolean('z'));
         assertFalse(args.has('l'));
@@ -34,13 +36,13 @@ class ArgsTest {
     @Test
     @DisplayName("it should not be able to return a valid string from args")
     void shouldNotBeAbleToReturnAStringValueFromArgs() throws ArgsException {
-        assertThrows(ArgsException.class, () -> new Args("d*", new String[] {"-d"}));
+        assertThrows(ArgsException.class, () -> new Args("d*", new String[]{"-d"}));
     }
 
     @Test
     @DisplayName("it should be able to return two integer values from the args")
     void shouldBeAbleToReturnAIntegerArg() throws ParseException {
-        var args = new Args("p#,e#", new String[] {"-p", "8080", "-e", "8181"});
+        var args = new Args("p#,e#", new String[]{"-p", "8080", "-e", "8181"});
         assertEquals(8080, args.getInt('p'));
         assertEquals(8181, args.getInt('e'));
     }
@@ -48,42 +50,71 @@ class ArgsTest {
     @Test
     @DisplayName("ït should not be able to return an valid integer value from the args ")
     void shouldNotBeAbleToReturnAnIntegerValueFromArgs() throws ArgsException {
-        assertThrows(ArgsException.class, () -> new Args("p#", new String[] {"-p", "ok"}));
+        assertThrows(ArgsException.class, () -> new Args("p#", new String[]{"-p", "ok"}));
     }
 
     @Test
     @DisplayName("it should throw an args exception when missing integer parameter")
     void shouldThrowAnExceptionWhenMissingIntegerParameter() throws ArgsException {
-        assertThrows(ArgsException.class, () -> new Args("#p", new String[] {"-p"}));
+        assertThrows(ArgsException.class, () -> new Args("#p", new String[]{"-p"}));
     }
 
     @Test
     @DisplayName("it should throw an args exception when inform an invalid double parameter")
     void shouldThrowAnExceptionWhenAnInvalidDoubleParameter() {
-        assertThrows(ArgsException.class, () -> new Args("v$", new String[] {"-v", "ok"}));
+        assertThrows(ArgsException.class, () -> new Args("v$", new String[]{"-v", "ok"}));
     }
 
     @Test
     @DisplayName("it should throw an args exception when inform an invalid double parameter")
     void shouldThrowAnExceptionWhenMissingDoubleParameter() {
-        assertThrows(ArgsException.class, () -> new Args("v$", new String[] {"-v"}));
+        assertThrows(ArgsException.class, () -> new Args("v$", new String[]{"-v"}));
     }
 
     @Test
     @DisplayName("it should return a valid double value")
     void shouldReturnAValidDoubleValue() {
-        var args = new Args("v$", new String[] {"-v", "2.33"});
+        var args = new Args("v##", new String[]{"-v", "2.33"});
         assertEquals(2.33, args.getDouble('v'));
     }
 
     @Test
-    @DisplayName("it should return all values through all different typs of paramters")
+    @DisplayName("it should throw an exception when string array parameter has missing parameter")
+    void shouldThrowWhenStringArrayHasMissingParameter() {
+        assertThrows(ArgsException.class, () -> new Args("v[*]", new String[]{"-v"}),
+                "Could not find parameter for -v");
+    }
+
+    @Test
+    @DisplayName("it should ble able to return a string array from args")
+    void shouldBeAbleToReturnAValidStringArrayFromArgs() {
+        var args = new Args("v[*]", new String[]{"-v", "value1,value2"});
+        assertTrue(args.has('v'));
+        var result = args.getStringArray('v');
+        assertEquals(result[0], "value1");
+        assertEquals(result[1], "value2");
+    }
+
+    @Test
+    @DisplayName("it should ble able to return a string array from args ignoring blank spaces")
+    void shouldBeAbleToReturnAValidStringArrayFromArgsIgnoringBlankSpaces() {
+        var args = new Args("v[*]", new String[]{"-v", " value1, value2 "});
+        assertTrue(args.has('v'));
+        var result = args.getStringArray('v');
+        assertEquals(result[0], "value1");
+        assertEquals(result[1], "value2");
+    }
+
+    @Test
+    @DisplayName("it should return all values through all different types of parameters")
     void shouldReturnAllValuesThroughAllTypesOfDifferentParameters() {
-        var args = new Args("b,s*,i#,d$", new String[] {"-b", "-s", "valid string parameter", "-i", "8080", "-d", "2.11"});
+        var args = new Args("b,s*,i#,d##,v[*]", new String[]{"-b", "-s", "valid string parameter", "-i", "8080", "-d", "2.11", "-v", "value1, value2"});
         assertTrue(args.getBoolean('b'));
         assertEquals("valid string parameter", args.getString('s'));
         assertEquals(8080, args.getInt('i'));
         assertEquals(2.11, args.getDouble('d'));
+        assertEquals(args.getStringArray('v')[0], "value1");
+        assertEquals(args.getStringArray('v')[1], "value2");
     }
 
 }

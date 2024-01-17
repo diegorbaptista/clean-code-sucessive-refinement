@@ -2,10 +2,7 @@ package org.example;
 
 import org.example.exceptions.ArgsException;
 import org.example.marshalers.ArgumentMarshaler;
-import org.example.marshalers.implementation.BooleanArgumentMarshaler;
-import org.example.marshalers.implementation.DoubleArgumentMarshaler;
-import org.example.marshalers.implementation.IntegerArgumentMarshaler;
-import org.example.marshalers.implementation.StringArgumentMarshaler;
+import org.example.marshalers.implementation.*;
 
 import java.util.*;
 
@@ -50,6 +47,8 @@ public class Args {
             marshalers.put(elementId, new IntegerArgumentMarshaler());
         } else if (isDoubleSchemaElement(elementTail)) {
             marshalers.put(elementId, new DoubleArgumentMarshaler());
+        } else if (isStringArraySchemaElement(elementTail)) {
+            marshalers.put(elementId, new StringArrayArgumentMarshaler());
         } else {
             throw new ArgsException(ArgsException.ErrorCode.INVALID_FORMAT, elementId, elementTail);
         }
@@ -74,7 +73,11 @@ public class Args {
     }
 
     private boolean isDoubleSchemaElement(String elementTail) {
-        return elementTail.equals("$");
+        return elementTail.equals("##");
+    }
+
+    private boolean isStringArraySchemaElement(String elementTrail) {
+        return elementTrail.equals("[*]");
     }
 
     private void parseArguments() {
@@ -109,7 +112,6 @@ public class Args {
         if (marshaler == null) {
             return false;
         }
-
         try {
             marshaler.set(currentArgument);
             return true;
@@ -149,6 +151,14 @@ public class Args {
             return (Double) marshalers.get(arg).get();
         } catch (ClassCastException e) {
             return 0;
+        }
+    }
+
+    public String[] getStringArray(char arg) {
+        try {
+            return (String[]) marshalers.get(arg).get();
+        } catch (ClassCastException e) {
+            return new String[] {};
         }
     }
 

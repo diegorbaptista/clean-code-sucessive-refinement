@@ -12,6 +12,7 @@ public class ArgsException extends IllegalArgumentException {
         MISSING_STRING,
         MISSING_INTEGER,
         MISSING_DOUBLE,
+        MISSING_STRING_ARRAY,
         INVALID_INTEGER,
         INVALID_DOUBLE,
         UNEXPECTED_ARGUMENT;
@@ -46,7 +47,7 @@ public class ArgsException extends IllegalArgumentException {
             case INVALID_SCHEMA -> "Invalid args schema";
             case INVALID_FORMAT -> String.format("Invalid format for argument %c and value %s", errorArgumentId, errorParameter);
             case INVALID_ARGUMENT_NAME -> String.format("Invalid argument name for %c", errorArgumentId);
-            case MISSING_STRING, MISSING_INTEGER, MISSING_DOUBLE ->
+            case MISSING_STRING, MISSING_INTEGER, MISSING_DOUBLE, MISSING_STRING_ARRAY ->
                     String.format("Could not find parameter for -%c.", errorArgumentId);
             case INVALID_INTEGER ->
                     String.format("Value for parameter -%c is not a integer value for %s", errorArgumentId, errorParameter);
